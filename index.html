@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelime Uygulaması v3</title>
+    <title>Kelime Uygulaması v3 (Akademik Cümleler)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- TEMEL AYARLAR --- */
@@ -131,7 +131,7 @@
             <div class="card-content">
                 <div class="word-header">
                     <div class="main-word-row">
-                        <span class="speaker-icon">🔊</span>
+                        <span class="speaker-icon" id="card-speaker-icon">🔊</span>
                         <h1 id="card-word" class="main-word">...</h1>
                     </div>
                     <p id="card-meaning" class="main-meaning">...</p>
@@ -156,18 +156,47 @@
 
     <script>
         // ======================================================
-        // 1. VERİ YÖNETİMİ (HER ÜNİTE AYRI AYRI BURADA)
+        // 1. VERİ YÖNETİMİ (Kelimeler, Anlamlar ve Özel Cümleler)
         // ======================================================
         
+        // Yeni akademik kelimeler ve özel cümleleri içeren yapı
+        const newAcademicWords = [
+            { en_verb: "Analyze", tr_verb: "Analiz Etmek", en_sentence: "The research aims to analyze the impact of climate change on coastal biodiversity over the last decade.", tr_sentence: "Araştırma, son on yılda iklim değişikliğinin kıyı biyoçeşitliliği üzerindeki etkisini analiz etmeyi amaçlamaktadır." },
+            { en_verb: "Identify", tr_verb: "Tanımlamak, Belirlemek", en_sentence: "Researchers were able to identify a clear correlation between screen time and reduced attention spans in adolescents.", tr_sentence: "Araştırmacılar, ergenlerde ekran süresi ile azalan dikkat süreleri arasında açık bir korelasyonu tanımlayabildiler (veya belirleyebildiler)." },
+            { en_verb: "Determine", tr_verb: "Saptamak, Karar Vermek", en_sentence: "A detailed regression model was employed to determine the primary factors influencing consumer behavior.", tr_sentence: "Tüketici davranışlarını etkileyen temel faktörleri saptamak için ayrıntılı bir regresyon modeli kullanıldı." },
+            { en_verb: "Establish", tr_verb: "Kurmak, Oluşturmak, Saptamak", en_sentence: "The study sought to establish a causal link between the new policy and the increase in unemployment rates.", tr_sentence: "Çalışma, yeni politika ile artan işsizlik oranları arasında nedensel bir bağlantı kurmayı amaçladı." },
+            { en_verb: "Investigate", tr_verb: "Araştırmak, İncelemek", en_sentence: "This paper will investigate the theoretical underpinnings of quantum entanglement in physics.", tr_sentence: "Bu makale, fizikteki kuantum dolanıklığının teorik temellerini araştıracaktır (veya inceleyecektir)." },
+            { en_verb: "Illustrate", tr_verb: "Örneklemek, Açıklamak", en_sentence: "Figure 3 effectively illustrates the exponential growth curve observed in the experimental data.", tr_sentence: "Şekil 3, deneysel verilerde gözlemlenen üstel büyüme eğrisini etkili bir şekilde örneklemektedir (veya açıklamaktadır)." },
+            { en_verb: "Demonstrate", tr_verb: "Göstermek, Kanıtlamak", en_sentence: "The results demonstrate that the novel therapeutic compound significantly inhibits viral replication.", tr_sentence: "Sonuçlar, yeni terapötik bileşiğin viral çoğalmayı önemli ölçüde engellediğini göstermektedir (veya kanıtlamaktadır)." },
+            { en_verb: "Evaluate", tr_verb: "Değerlendirmek", en_sentence: "The committee must evaluate the long-term sustainability of the proposed infrastructure project.", tr_sentence: "Komite, önerilen altyapı projesinin uzun vadeli sürdürülebilirliğini değerlendirmelidir." },
+            { en_verb: "Synthesize", tr_verb: "Sentezlemek", en_sentence: "The chapter attempts to synthesize disparate findings from various subfields into a coherent framework.", tr_sentence: "Bölüm, çeşitli alt alanlardan gelen farklı bulguları tutarlı bir çerçevede sentezlemeye çalışmaktadır." },
+            { en_verb: "Formulate", tr_verb: "Formüle Etmek, Geliştirmek", en_sentence: "We need to formulate a robust hypothesis before commencing the data collection phase of the research.", tr_sentence: "Araştırmanın veri toplama aşamasına başlamadan önce sağlam bir hipotez formüle etmemiz (veya geliştirmemiz) gerekiyor." },
+            { en_verb: "Define", tr_verb: "Tanımlamak", en_sentence: "The initial section of the thesis must clearly define the scope and key terminology used throughout the study.", tr_sentence: "Tezin ilk bölümü, çalışma boyunca kullanılan kapsamı ve temel terminolojiyi açıkça tanımlamalıdır." },
+            { en_verb: "Compare", tr_verb: "Karşılaştırmak", en_sentence: "The methodology requires us to compare the performance of the traditional algorithm with the machine learning approach.", tr_sentence: "Metodoloji, geleneksel algoritmanın performansını makine öğrenimi yaklaşımıyla karşılaştırmamızı gerektirmektedir." },
+            { en_verb: "Contrast", tr_verb: "Karşıtlık Kurmak, Farklılıkları Belirtmek", en_sentence: "This essay will contrast the economic policies of the two major political parties during the recent financial crisis.", tr_sentence: "Bu deneme, son mali kriz sırasındaki iki büyük siyasi partinin ekonomi politikalarını karşılaştırarak farklılıklarını belirtecektir (veya karşıtlık kuracaktır)." },
+            { en_verb: "Argue", tr_verb: "Tartışmak, İddia Etmek", en_sentence: "The author of the journal article argues convincingly for a shift towards renewable energy sources.", tr_sentence: "Dergi makalesinin yazarı, yenilenebilir enerji kaynaklarına geçiş lehine ikna edici bir şekilde iddiaya etmektedir (veya görüşünü savunmaktadır)." },
+            { en_verb: "Support", tr_verb: "Desteklemek", en_sentence: "Numerous empirical studies support the theory that early intervention improves educational outcomes.", tr_sentence: "Çok sayıda ampirik çalışma, erken müdahalenin eğitim sonuçlarını iyileştirdiği teorisini desteklemektedir." },
+            { en_verb: "Challenge", tr_verb: "Sorgulamak, Meydan Okumak", en_sentence: "Recent archaeological findings challenge the long-held assumption regarding the timeline of the ancient civilization.", tr_sentence: "Son arkeolojik bulgular, kadim uygarlğın zaman çizelgesi hakkındaki köklü varsayımı sorgulamaktadır (veya meydan okumaktadır)." },
+            { en_verb: "Derive", tr_verb: "Türetmek, Elde Etmek", en_sentence: "The mathematical model allows us to derive an equation predicting the future state of the system.", tr_sentence: "Matematiksel model, sistemin gelecekteki durumunu tahmin eden bir denklemi türetmemizi (veya elde etmemizi) sağlamaktadır." },
+            { en_verb: "Indicate", tr_verb: "İşaret Etmek, Göstermek", en_sentence: "The preliminary data indicate a significant outlier that requires further examination.", tr_sentence: "Ön veriler, daha fazla inceleme gerektiren önemli bir aykırı değere işaret etmektedir (veya göstermektedir)." },
+            { en_verb: "Suggest", tr_verb: "Öne Sürmek, Önermek", en_sentence: "Based on the qualitative interviews, the data suggest a correlation, though not a definitive causation.", tr_sentence: "Nitel görüşmelere dayanarak, veriler kesin bir nedensellik olmasa da bir korelasyon öne sürmektedir (veya göstermektedir)." },
+            { en_verb: "Conclude", tr_verb: "Sonuçlandırmak", en_sentence: "In light of the evidence, the study must conclude that the intervention had a negligible effect.", tr_sentence: "Kanıtlar ışığında, çalışma müdahalenin ihmal edilebilir bir etkiye sahip olduğu sonucuna varmalıdır (veya sonuçlandırmalıdır)." }
+        ];
+
+        // Temel fiiller (Yeni akademik yapıyı desteklemek için formatları değiştirildi)
+        const baseVerbs = [
+            { en_verb: "hide", tr_verb: "saklamak", en_sentence: "I like to {hide} small things in the garden.", tr_sentence: "Bahçeye küçük şeyler saklamayı severim." },
+            { en_verb: "run", tr_verb: "koşmak", en_sentence: "We should {run} faster to catch the bus.", tr_sentence: "Otobüsü yakalamak için daha hızlı koşmalıyız." },
+            { en_verb: "eat", tr_verb: "yemek yemek", en_sentence: "Do you want to {eat} pizza tonight?", tr_sentence: "Bu gece pizza yemek ister misin?" },
+            { en_verb: "drink", tr_verb: "içmek", en_sentence: "She needs to {drink} more water during the day.", tr_sentence: "Gündüzleri daha fazla su içmesi gerekiyor." },
+            { en_verb: "sleep", tr_verb: "uyumak", en_sentence: "I always {sleep} late on weekends.", tr_sentence: "Hafta sonları her zaman geç uyurum." }
+        ];
+
+        // Tüm kelime verilerini birleştirme
+        const unit1Words = [...baseVerbs, ...newAcademicWords];
+
         const unitDatabase = {
-            // Ünite 1: Temel Fiiller
-            1: [
-                ["hide", "saklamak"],
-                ["run", "koşmak"],
-                ["eat", "yemek yemek"],
-                ["drink", "içmek"],
-                ["sleep", "uyumak"]
-            ],
+            1: unit1Words.map(item => [item.en_verb, item.tr_verb]), // Liste ekranı için eski formatı koruyoruz
             // Ünite 2: Doğa
             2: [
                 ["tree", "ağaç"],
@@ -192,8 +221,6 @@
                 ["robot", "robot"],
                 ["screen", "ekran"]
             ]
-            // Ünite 5'ten 20'ye kadar aşağıda otomatik dolduruyoruz (Demo için)
-            // Siz buraya manuel olarak 5: [...], 6: [...] ekleyebilirsiniz.
         };
 
         // Demo Amaçlı: Boş üniteleri sahte veriyle dolduralım ki liste dolu görünsün
@@ -204,139 +231,180 @@
                 ["word", "kelime"]
             ];
         }
-
-        // ======================================================
-        // 2. OTOMATİK İÇERİK OLUŞTURUCU (AI & ŞABLONLAR)
-        // ======================================================
         
+        // Veri kaynağından kelimenin tam obje formatını getirme fonksiyonu (yeni)
+        function getWordFullData(word) {
+            // Sadece Ünite 1'deki tam veriye ihtiyacımız var, diğerleri otomatiktir
+            if (unit1Words.find(item => item.en_verb === word)) {
+                return unit1Words.find(item => item.en_verb === word);
+            }
+            return null;
+        }
+
+
+        // ======================================================        
+        // 2. OTOMATİK İÇERİK OLUŞTURUCU (AI & ŞABLONLAR)        
+        // ======================================================                
+
         function processWordData(word, meaning) {
-            // A. Otomatik Görsel (Pollinations AI)
-            const imgUrl = `https://image.pollinations.ai/prompt/minimalist%20flat%20vector%20art%20of%20${word}%20isolated%20white%20background?width=400&height=300&nologo=true`;
+            
+            // 1. TAM VERİ KONTROLÜ: Eğer manuel girilmiş özel cümle varsa, onu kullan.
+            const fullData = getWordFullData(word);
+            let finalEn = fullData ? fullData.en_sentence : "";
+            let finalTr = fullData ? fullData.tr_sentence : "";
 
-            // B. Otomatik Cümle Şablonları
-            const templates = [
-                { en: "I can see the {word}.", tr: "Şu {meaning}ı görebiliyorum." },
-                { en: "Do not forget the {word}.", tr: "{meaning}ı unutma." },
-                { en: "This {word} is very nice.", tr: "Bu {meaning} çok güzel." },
-                { en: "Where is the {word}?", tr: "{meaning} nerede?" },
-                { en: "I need a {word}.", tr: "Bir {meaning}a ihtiyacım var." }
-            ];
+            // -----------------------------------------------------
+            // A. Otomatik Görsel (Özelleştirilmiş Prompt Yönetimi)
+            // -----------------------------------------------------
+            let promptBase = "minimalist%20flat%20vector%20art%20of%20";
+            let promptSuffix = "%20isolated%20white%20background";
+            const academicWords = newAcademicWords.map(item => item.en_verb);
 
-            // Kelimenin uzunluğuna göre sabit bir cümle seç (her açışta aynı olsun diye)
-            const tIndex = word.length % templates.length;
-            const t = templates[tIndex];
+            if (academicWords.includes(word)) {
+                // Akademik kelimeler için daha soyut ve kavramsal görseller
+                promptBase = "concept%20illustration%20of%20";
+                promptSuffix = "%20abstract%20graphic%20design%20data%20analysis";
+            }
+            
+            const imgUrl = `https://image.pollinations.ai/prompt/${promptBase}${word}${promptSuffix}?width=400&height=300&nologo=true`;
+
+            // -----------------------------------------------------
+            // B. Cümle İşleme (Kelimeyi vurgulama)
+            // -----------------------------------------------------
+
+            // Eğer cümleler otomatikten gelmediyse (yani fullData'dan geldiyse)
+            if (fullData) {
+                // Özel cümlede kelimeyi bulup {} içine alarak highlight'a hazırla
+                // Örneğin "The research aims to analyze..." -> "The research aims to {analyze}..."
+                const regex = new RegExp(`\\b${word}\\b`, 'i'); 
+                finalEn = finalEn.replace(regex, `{${word}}`);
+            } else {
+                 // Otomatik oluşturulan kelimeler için (Şu anki yapıda sadece 5'ten sonrası)
+                 finalEn = finalEn.replace("{word}", `{${word}}`);
+            }
+
 
             return {
                 word: word,
                 meaning: meaning,
                 image: imgUrl,
-                sentenceEn: t.en.replace("{word}", `{${word}}`), // Renklendirme için işaret
-                sentenceTr: t.tr.replace("{meaning}", meaning)
+                sentenceEn: finalEn, 
+                sentenceTr: finalTr
             };
         }
 
-        // ======================================================
-        // 3. ARAYÜZ FONKSİYONLARI
-        // ======================================================
+        // --- SESLENDİRME FONKSİYONU ---        
+        function speakWord(word) {            
+            if ('speechSynthesis' in window) {                
+                const utterance = new SpeechSynthesisUtterance(word);                
+                // İngilizce için 'en-US' ayarı                
+                utterance.lang = 'en-US';                 
+                window.speechSynthesis.speak(utterance);            
+            } else {                
+                console.warn('Tarayıcı seslendirmeyi desteklemiyor.');            
+            }        
+        }
 
-        const listScreen = document.getElementById('list-screen');
-        const detailScreen = document.getElementById('detail-screen');
+
+        // ======================================================        
+        // 3. ARAYÜZ FONKSİYONLARI        
+        // ======================================================
+        const listScreen = document.getElementById('list-screen');        
+        const detailScreen = document.getElementById('detail-screen');        
         const cardScreen = document.getElementById('card-screen');
-
-        function switchScreen(screen) {
-            listScreen.classList.remove('active'); listScreen.style.display = 'none';
-            detailScreen.classList.remove('active'); detailScreen.style.display = 'none';
-            cardScreen.classList.remove('active'); cardScreen.style.display = 'none';
-            
-            screen.style.display = 'block';
-            setTimeout(() => screen.classList.add('active'), 10);
+        
+        function switchScreen(screen) {            
+            listScreen.classList.remove('active'); listScreen.style.display = 'none';            
+            detailScreen.classList.remove('active'); detailScreen.style.display = 'none';            
+            cardScreen.classList.remove('active'); cardScreen.style.display = 'none';                        
+            screen.style.display = 'block';            
+            setTimeout(() => screen.classList.add('active'), 10);        
         }
-
-        // --- Ünite Listesini Oluştur ---
-        function initUnitList() {
-            const container = document.getElementById('units-container');
-            const totalUnits = 20;
+        
+        // --- Ünite Listesini Oluştur ---        
+        function initUnitList() {            
+            const container = document.getElementById('units-container');            
+            const totalUnits = 20;            
             const colors = ['bg-1', 'bg-2', 'bg-3', 'bg-4', 'bg-5'];
-
-            for (let i = 1; i <= totalUnits; i++) {
-                const color = colors[(i - 1) % colors.length];
-                const wordCount = unitDatabase[i] ? unitDatabase[i].length : 0;
-                
-                const card = document.createElement('div');
-                card.className = 'unit-card';
-                card.onclick = () => openUnit(i);
-                card.innerHTML = `
-                    <div class="circle ${color}">${i}</div>
-                    <div class="info">
-                        <h3>Ünite ${i}</h3>
-                        <p>${wordCount} kelime</p>
-                    </div>
-                `;
-                container.appendChild(card);
-            }
+            
+            for (let i = 1; i <= totalUnits; i++) {                
+                const color = colors[(i - 1) % colors.length];                
+                const wordCount = unitDatabase[i] ? unitDatabase[i].length : 0;                                
+                const card = document.createElement('div');                
+                card.className = 'unit-card';                
+                card.onclick = () => openUnit(i);                
+                card.innerHTML = `                    
+                    <div class="circle ${color}">${i}</div>                    
+                    <div class="info">                        
+                        <h3>Ünite ${i}</h3>                        
+                        <p>${wordCount} kelime</p>                    
+                    </div>                
+                `;                
+                container.appendChild(card);            
+            }        
         }
-
-        // --- Ünite Detayını Aç ---
-        function openUnit(unitId) {
-            document.getElementById('detail-unit-title').innerText = `Ünite ${unitId} Kelimeleri`;
-            const listContainer = document.getElementById('unit-word-list');
-            const emptyMsg = document.getElementById('empty-message');
+        
+        // --- Ünite Detayını Aç ---        
+        function openUnit(unitId) {            
+            document.getElementById('detail-unit-title').innerText = `Ünite ${unitId} Kelimeleri`;            
+            const listContainer = document.getElementById('unit-word-list');            
+            const emptyMsg = document.getElementById('empty-message');            
             listContainer.innerHTML = '';
-
+            
             const rawWords = unitDatabase[unitId];
-
-            if (!rawWords || rawWords.length === 0) {
-                emptyMsg.style.display = 'block';
-            } else {
-                emptyMsg.style.display = 'none';
-                
-                rawWords.forEach(pair => {
-                    const wordData = processWordData(pair[0], pair[1]);
-                    
-                    const li = document.createElement('li');
-                    li.className = 'word-item';
-                    li.onclick = () => openCard(wordData);
-                    
-                    // Kelimenin baş harfini ikon yap
-                    const initial = wordData.word.charAt(0).toUpperCase();
-                    
-                    li.innerHTML = `
-                        <div class="word-icon">${initial}</div>
-                        <div style="flex-grow:1">
-                            <div style="font-weight:bold; color:#333; font-size:16px;">${wordData.word}</div>
-                            <div style="font-size:14px; color:#777;">${wordData.meaning}</div>
-                        </div>
-                        <span style="color:#ddd;">&#10095;</span>
-                    `;
-                    listContainer.appendChild(li);
-                });
-            }
-            switchScreen(detailScreen);
-        }
-
-        // --- Kartı Aç ---
-        function openCard(data) {
-            document.getElementById('card-word').innerText = data.word;
-            document.getElementById('card-meaning').innerText = data.meaning;
             
-            // Cümleyi işle ve renklendir
+            if (!rawWords || rawWords.length === 0) {                
+                emptyMsg.style.display = 'block';            
+            } else {                
+                emptyMsg.style.display = 'none';                                
+                rawWords.forEach(pair => {                    
+                    const li = document.createElement('li');                    
+                    li.className = 'word-item';                                        
+                    li.dataset.word = pair[0];                    
+                    li.dataset.meaning = pair[1];                                        
+                    li.onclick = function() {                        
+                        const w = this.dataset.word;                        
+                        const m = this.dataset.meaning;                        
+                        openCard(processWordData(w, m));                    
+                    };                                        
+                    const initial = pair[0].charAt(0).toUpperCase();                                        
+                    li.innerHTML = `                        
+                        <div class="word-icon">${initial}</div>                        
+                        <div style="flex-grow:1">                            
+                            <div style="font-weight:bold; color:#333; font-size:16px;">${pair[0]}</div>                            
+                            <div style="font-size:14px; color:#777;">${pair[1]}</div>                        
+                        </div>                        
+                        <span style="color:#ddd;">&#10095;</span>                    
+                    `;                    
+                    listContainer.appendChild(li);                
+                });            
+            }            
+            switchScreen(detailScreen);        
+        }
+        
+        // --- Kartı Aç ---        
+        function openCard(data) {            
+            document.getElementById('card-word').innerText = data.word;            
+            document.getElementById('card-meaning').innerText = data.meaning;                        
+            
+            // Cümledeki {kelime} kısımlarını renklendirilmiş span'e çevirir.
             const formattedEn = data.sentenceEn.replace(/{(\w+)}/g, '<span class="highlight-word">$1</span>');
-            document.getElementById('card-sentence-en').innerHTML = formattedEn;
-            document.getElementById('card-sentence-tr').innerText = data.sentenceTr;
+            document.getElementById('card-sentence-en').innerHTML = formattedEn;            
+            document.getElementById('card-sentence-tr').innerText = data.sentenceTr;                        
             
-            // Görseli yükle (yüklenirken placeholder gösterilebilir)
-            const img = document.getElementById('card-image');
+            const img = document.getElementById('card-image');            
             img.src = data.image;
-
-            switchScreen(cardScreen);
+            
+            document.getElementById('card-speaker-icon').onclick = () => speakWord(data.word);
+            
+            switchScreen(cardScreen);        
         }
-
-        function showListScreen() { switchScreen(listScreen); }
+        
+        function showListScreen() { switchScreen(listScreen); }        
         function closeCardScreen() { switchScreen(detailScreen); }
-
-        // Uygulamayı Başlat
+        
+        // Uygulamayı Başlat        
         initUnitList();
-
-    </script>
-</body>
+    </script> 
+</body> 
 </html>
