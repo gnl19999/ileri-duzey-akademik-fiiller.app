@@ -6,8 +6,6 @@
     <title>Kelime Öğrenme Uygulaması</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* ... (Önceki CSS Stilleri: body, container, unit-card, circle, info, detail-screen, word-list, word-item vb. buraya kopyalanmıştır.) ... */
-
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f6f8;
@@ -24,13 +22,13 @@
 
         /* --- Ortak Görünümler --- */
         .screen {
-            display: none; 
+            display: none; /* Ekranları başlangıçta gizle */
         }
         .screen.active {
-            display: block; 
+            display: block; /* Aktif ekranı göster */
         }
 
-        /* --- Ünite Listesi Stilleri --- */
+        /* --- Ünite Listesi (List Screen) Stilleri --- */
         .unit-card {
             background-color: white;
             border-radius: 12px;
@@ -44,6 +42,12 @@
             transition: transform 0.2s;
         }
 
+        .unit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Renkli Daireler */
         .circle {
             width: 50px;
             height: 50px;
@@ -57,6 +61,8 @@
             margin-right: 15px;
             flex-shrink: 0;
         }
+
+        /* Daire Renkleri (Sadece örnek için, tümünü buraya yazmaya gerek yok) */
         .c-red { background-color: #d9534f; }
         .c-blue { background-color: #0275d8; }
         .c-black { background-color: #292b2c; }
@@ -66,18 +72,60 @@
         .c-cyan { background-color: #5bc0de; }
         .c-dark { background-color: #37474f; }
 
-        .info h3 { margin: 0 0 5px 0; color: #333; font-size: 18px; }
-        .info p { margin: 0; color: #6c757d; font-size: 14px; }
+        /* Yazı Alanı */
+        .info h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 18px;
+        }
 
-        /* --- Ünite Detay Stilleri --- */
-        .detail-header { display: flex; align-items: center; margin-bottom: 20px; }
-        .detail-header .back-button { font-size: 24px; color: #6c757d; cursor: pointer; margin-right: 15px; }
-        .detail-header h2 { margin: 0; font-size: 24px; color: #333; flex-grow: 1; text-align: center; }
-        .detail-info { text-align: center; margin-bottom: 20px; }
-        .word-item { 
-            /* Tıklanabilirliği vurgula */
-            cursor: pointer; 
-            transition: background-color 0.2s;
+        .info p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* --- Ünite Detay (Detail Screen) Stilleri (Yüklediğiniz Görsele Benzer) --- */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .detail-header .back-button {
+            font-size: 24px;
+            color: #6c757d;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .detail-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+            flex-grow: 1;
+            text-align: center; /* Başlığı ortala */
+        }
+        .detail-header .unit-circle {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+            margin: 0 auto 10px auto;
+            background-color: #d9534f; /* Kırmızı renk */
+        }
+        .detail-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .detail-info p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        /* Kelime Listesi */
+        .word-list {
+            list-style: none;
+            padding: 0;
+        }
+        .word-item {
             background-color: white;
             border-radius: 8px;
             padding: 12px 15px;
@@ -86,126 +134,39 @@
             align-items: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .word-item:active {
-            background-color: #f0f0f0; /* Tıklama anında renk değiştirme */
-        }
         .word-item .word-icon {
-            width: 40px; height: 40px; margin-right: 10px; border-radius: 50%;
-            background-color: #e6ffe6; color: #4CAF50; display: flex;
-            align-items: center; justify-content: center; font-weight: bold;
-        }
-        .word-item .text-content .english-word { font-weight: bold; color: #333; font-size: 16px; }
-        .word-item .text-content .turkish-meaning { color: #6c757d; font-size: 14px; margin-top: 2px; }
-
-
-        /* --- 4. KELİME DETAY MODAL STİLLERİ --- */
-        .word-modal {
-            display: none; 
-            position: fixed;
-            z-index: 100; 
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4); /* Arka plan karartma */
-            padding-top: 50px;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto; /* Ortalamaya yardımcı olur */
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%; 
-            max-width: 450px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-        
-        .modal-header {
-            padding: 0 0 10px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .modal-close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-        }
-
-        .modal-body {
-            padding: 20px 0;
-            text-align: center;
-        }
-
-        /* Kelime Bilgisi Bölümü */
-        .word-details-main {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background-color: #e6ffe6; /* Açık yeşil arka plan */
+            color: #4CAF50; /* Koyu yeşil simge rengi */
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .word-details-main .speaker {
-            font-size: 30px;
-            color: #ff9800; /* Turuncu Hoparlör */
-            margin-right: 10px;
-        }
-
-        .word-details-main .english {
-            font-size: 36px;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .word-details-main .turkish {
-            font-size: 18px;
-            color: #777;
-            margin-top: 5px;
-        }
-
-        /* Görsel Alanı */
-        .word-image {
-            margin: 20px 0;
-            min-height: 100px;
-        }
-        .word-image img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        /* Örnek Cümle Alanı */
-        .example-box {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: left;
-            border-left: 5px solid #d9534f; /* Kırmızı çizgi */
-        }
-        .example-box .example-label {
-            color: #d9534f;
+            font-style: italic; /* Kelime kökü simgesi (örneğin yaprak) */
             font-weight: bold;
-            margin-right: 5px;
-            font-style: italic;
         }
-        .example-box .eng-example {
-            font-size: 15px;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .example-box .tr-example {
-            font-size: 14px;
-            color: #6c757d;
+        .word-item .word-icon img {
+            width: 40px; /* Görsel boyutunu ayarla */
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
+        .word-item .text-content {
+            flex-grow: 1;
+        }
+        .word-item .text-content .english-word {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        .word-item .text-content .turkish-meaning {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -216,9 +177,8 @@
 
         <div id="detail-screen" class="screen">
             <div class="detail-header">
-                <span class="back-button" onclick="showListScreen()">&#10005;</span> 
-                <h2 id="detail-unit-title">Ünite X</h2>
-            </div>
+                <span class="back-button" onclick="showListScreen()">&#10005;</span> <h2 id="detail-unit-title">Ünite X</h2>
+                </div>
             
             <div class="detail-info">
                 <div id="detail-unit-circle" class="circle detail-header-circle c-red"></div>
@@ -230,74 +190,47 @@
                 </ul>
         </div>
     </div>
-    
-    <div id="wordModal" class="word-modal" onclick="closeModal(event)">
-        <div class="modal-content">
-            <span class="modal-close" onclick="document.getElementById('wordModal').style.display='none'">&times;</span>
-
-            <div class="modal-body">
-                <div class="word-details-main">
-                    <span class="speaker">&#128266;</span> <span id="modal-english-word" class="english">HIDE</span>
-                </div>
-                <div id="modal-turkish-meaning" class="turkish">gizlemek, saklamak</div>
-
-                <div class="word-image">
-                    <img id="modal-word-image" src="https://via.placeholder.com/200x150?text=Kelime+G%C3%B6rseli" alt="Kelime Görseli">
-                </div>
-
-                <div class="example-box">
-                    <p class="eng-example">
-                        <span class="example-label">ör.</span>
-                        <span id="modal-eng-example">He was accused of trying to hide evidence from the police.</span>
-                    </p>
-                    <p class="tr-example" id="modal-tr-example">
-                        Polisten delil gizlemeye çalışmakla suçlandı.
-                    </p>
-                </div>
-
-                <div style="text-align: right; margin-top: 10px; font-size: 20px; color: #ff9800;">&#9889;</div>
-            </div>
-        </div>
-    </div>
 
     <script>
-        // --- 1. Kelime Havuzu (Örnek Cümleler Eklendi) ---
+        // --- 1. Kelime Havuzu ve Rastgele Seçim Fonksiyonu ---
         const wordPool = [
-            { word: "add", meaning: "eklemek", engExample: "Please add milk to the list.", trExample: "Lütfen listeye süt ekleyin." },
-            { word: "call", meaning: "aramak, çağırmak", engExample: "I need to call my mother later today.", trExample: "Bugün daha sonra annemi aramalıyım." },
-            { word: "create", meaning: "yaratmak, oluşturmak", engExample: "Artists create beautiful paintings.", trExample: "Sanatçılar güzel resimler yaratır." },
-            { word: "finish", meaning: "bitirmek, tamamlamak", engExample: "You must finish your homework now.", trExample: "Ödevini şimdi bitirmelisin." },
-            { word: "hide", meaning: "gizlemek, saklamak", engExample: "He was accused of trying to hide evidence from the police.", trExample: "Polisten delil gizlemeye çalışmakla suçlandı." },
-            { word: "listen", meaning: "dinlemek", engExample: "Listen carefully to the instructions.", trExample: "Talimatları dikkatlice dinleyin." },
-            { word: "work", meaning: "çalışmak, iş", engExample: "She works as a nurse in a hospital.", trExample: "O, bir hastanede hemşire olarak çalışıyor." },
-            { word: "write", meaning: "yazmak", engExample: "I write a letter every week.", trExample: "Her hafta bir mektup yazarım." },
-            { word: "read", meaning: "okumak", engExample: "Can you read this document for me?", trExample: "Bu belgeyi benim için okuyabilir misin?" },
-            { word: "speak", meaning: "konuşmak", engExample: "He speaks three languages fluently.", trExample: "Üç dili akıcı konuşuyor." },
-            { word: "travel", meaning: "seyahat etmek", engExample: "We love to travel abroad every summer.", trExample: "Her yaz yurt dışına seyahat etmeyi seviyoruz." },
-            { word: "find", meaning: "bulmak", engExample: "Did you find your lost keys?", trExample: "Kaybolan anahtarlarını bulabildin mi?" },
-            { word: "lose", meaning: "kaybetmek", engExample: "Be careful not to lose your passport.", trExample: "Pasaportunu kaybetmemeye dikkat et." },
-            { word: "walk", meaning: "yürümek", engExample: "They walk their dog in the park daily.", trExample: "Her gün köpeklerini parkta gezdiriyorlar (yürütüyorlar)." },
-            { word: "run", meaning: "koşmak", engExample: "I run ten kilometers every morning.", trExample: "Her sabah on kilometre koşarım." },
-            { word: "understand", meaning: "anlamak", engExample: "I don't understand the last sentence.", trExample: "Son cümleyi anlamıyorum." },
-            { word: "remember", meaning: "hatırlamak", engExample: "Did you remember to lock the door?", trExample: "Kapıyı kilitlemeyi hatırladın mı?" },
-            { word: "forget", meaning: "unutmak", engExample: "Don't forget to buy bread.", trExample: "Ekmek almayı unutma." },
-            { word: "want", meaning: "istemek", engExample: "I want to drink some water.", trExample: "Biraz su içmek istiyorum." },
-            { word: "need", meaning: "ihtiyaç duymak", engExample: "We need more time to finish.", trExample: "Bitirmek için daha fazla zamana ihtiyacımız var." },
-            { word: "look", meaning: "bakmak", engExample: "Look at the stars tonight.", trExample: "Bu gece yıldızlara bak." },
-            { word: "feel", meaning: "hissetmek", engExample: "I feel much better today.", trExample: "Bugün çok daha iyi hissediyorum." },
-            { word: "open", meaning: "açmak", engExample: "Can you open the window?", trExample: "Pencereyi açabilir misin?" },
-            { word: "close", meaning: "kapatmak", engExample: "Please close the book when you are done.", trExample: "İşin bitince lütfen kitabı kapat." },
-            { word: "start", meaning: "başlamak", engExample: "The meeting starts at 9 AM.", trExample: "Toplantı sabah 9'da başlıyor." },
-            { word: "stop", meaning: "durmak, bitmek", engExample: "The rain finally stopped.", trExample: "Yağmur nihayet durdu." },
-            { word: "sleep", meaning: "uyumak", engExample: "I try to sleep eight hours a night.", trExample: "Gecede sekiz saat uyumaya çalışırım." },
-            { word: "eat", meaning: "yemek yemek", engExample: "We eat dinner together every day.", trExample: "Her gün akşam yemeğini birlikte yeriz." },
-            { word: "drink", meaning: "içmek", engExample: "He drinks coffee every morning.", trExample: "O, her sabah kahve içer." },
-            { word: "help", meaning: "yardım etmek", engExample: "Can you help me move this box?", trExample: "Bu kutuyu taşımama yardım edebilir misin?" },
+            { word: "add", meaning: "eklemek" },
+            { word: "call", meaning: "aramak, çağırmak" },
+            { word: "create", meaning: "yaratmak, oluşturmak" },
+            { word: "finish", meaning: "bitirmek, tamamlamak" },
+            { word: "hide", meaning: "gizlemek, saklamak" },
+            { word: "listen", meaning: "dinlemek" },
+            { word: "work", meaning: "çalışmak, iş" },
+            { word: "write", meaning: "yazmak" },
+            { word: "read", meaning: "okumak" },
+            { word: "speak", meaning: "konuşmak" },
+            { word: "travel", meaning: "seyahat etmek" },
+            { word: "find", meaning: "bulmak" },
+            { word: "lose", meaning: "kaybetmek" },
+            { word: "walk", meaning: "yürümek" },
+            { word: "run", meaning: "koşmak" },
+            { word: "understand", meaning: "anlamak" },
+            { word: "remember", meaning: "hatırlamak" },
+            { word: "forget", meaning: "unutmak" },
+            { word: "want", meaning: "istemek" },
+            { word: "need", meaning: "ihtiyaç duymak" },
+            { word: "look", meaning: "bakmak" },
+            { word: "feel", meaning: "hissetmek" },
+            { word: "open", meaning: "açmak" },
+            { word: "close", meaning: "kapatmak" },
+            { word: "start", meaning: "başlamak" },
+            { word: "stop", meaning: "durmak, bitmek" },
+            { word: "sleep", meaning: "uyumak" },
+            { word: "eat", meaning: "yemek yemek" },
+            { word: "drink", meaning: "içmek" },
+            { word: "help", meaning: "yardım etmek" },
         ];
         
         // Rastgele 10 kelime seçen fonksiyon
         function getRandomWords(count) {
+            // Kelimelerin karıştırılmış bir kopyasını oluştur
             const shuffled = [...wordPool].sort(() => 0.5 - Math.random());
+            // İlk 'count' kadarını al
             return shuffled.slice(0, count);
         }
 
@@ -305,7 +238,13 @@
         const listScreen = document.getElementById('list-screen');
         const unitCount = 20;
         const colorClasses = ['c-red', 'c-blue', 'c-black', 'c-green', 'c-orange', 'c-pink', 'c-cyan', 'c-dark'];
-        const learnedWords = { 1: 5, 3: 2 };
+
+        // Örnek öğrenilen kelime sayıları (gerçek bir uygulamada bu veritabanından gelmeli)
+        const learnedWords = {
+            1: 5,
+            3: 2,
+            // Diğer üniteler 0
+        };
 
         function createUnitList() {
             for (let i = 1; i <= unitCount; i++) {
@@ -326,30 +265,34 @@
                 listScreen.appendChild(card);
             }
         }
-        createUnitList();
+        createUnitList(); // Listeyi oluştur
 
-        // --- 3. Ekran ve Modal Yönetimi Fonksiyonları ---
+        // --- 3. Ekran Yönetimi Fonksiyonları ---
         const detailScreen = document.getElementById('detail-screen');
 
         function showDetailScreen(unitNumber, colorClass) {
+            // Detay ekranını aktive et
             document.getElementById('list-screen').classList.remove('active');
             detailScreen.classList.add('active');
 
+            // Başlık ve daireyi güncelle
             document.getElementById('detail-unit-title').textContent = `Ünite ${unitNumber}`;
             const unitCircle = document.getElementById('detail-unit-circle');
             unitCircle.textContent = unitNumber;
+            // Dairenin rengini ve sayısını güncelle
             unitCircle.className = `circle detail-header-circle ${colorClass}`;
 
+            // Rastgele kelimeleri al ve listeye ekle
             const words = getRandomWords(10);
             const wordListElement = document.getElementById('unit-word-list');
-            wordListElement.innerHTML = ''; 
+            wordListElement.innerHTML = ''; // Önceki kelimeleri temizle
 
             words.forEach(item => {
+                // Not: Görselde resimler var. Basit bir "yaprak" ikonu yerine görsel eklemek isterseniz 'word-icon img' kısmını kullanabilirsiniz.
+                // Şimdilik sadece bir simge yerine rastgele bir emoji kullandım.
                 const randomEmoji = ['🌿', '📝', '📞', '💡', '➕', '💨'][Math.floor(Math.random() * 6)];
                 const listItem = document.createElement('li');
                 listItem.className = 'word-item';
-                // **ÖNEMLİ DEĞİŞİKLİK: Tıklama olayına kelime, anlam ve cümleleri gönderiyoruz**
-                listItem.setAttribute('onclick', `showWordDetails('${item.word}', '${item.meaning}', '${item.engExample.replace(/'/g, "\\'")}', '${item.trExample.replace(/'/g, "\\'")}')`);
                 listItem.innerHTML = `
                     <div class="word-icon">${randomEmoji}</div>
                     <div class="text-content">
@@ -362,36 +305,11 @@
         }
 
         function showListScreen() {
+            // Liste ekranını aktive et
             document.getElementById('list-screen').classList.add('active');
             detailScreen.classList.remove('active');
         }
 
-        // Modal'ı açma ve içeriğini doldurma fonksiyonu
-        function showWordDetails(word, meaning, engExample, trExample) {
-            const modal = document.getElementById('wordModal');
-            
-            // Modal içeriğini doldur
-            document.getElementById('modal-english-word').textContent = word.toUpperCase();
-            document.getElementById('modal-turkish-meaning').textContent = meaning;
-            document.getElementById('modal-eng-example').textContent = engExample;
-            document.getElementById('modal-tr-example').textContent = trExample;
-            
-            // Görseli güncelle (basit bir placeholder ile)
-            document.getElementById('modal-word-image').src = `https://via.placeholder.com/250x180?text=${word.toUpperCase()}+G%C3%B6rseli`;
-
-            // Modal'ı göster
-            modal.style.display = "block";
-        }
-
-        // Modal dışına tıklanırsa kapat
-        function closeModal(event) {
-            const modal = document.getElementById('wordModal');
-            // Sadece modal içeriği değil, modalın kendisine (arkadaki karartılmış alana) tıklanırsa kapat
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
-        
         // Başlangıçta listeyi göster
         document.addEventListener('DOMContentLoaded', () => {
              document.getElementById('list-screen').classList.add('active');
