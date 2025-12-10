@@ -3,313 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelime Öğrenme Uygulaması</title>
+    <title>Kelime Uygulaması v3</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
+        /* --- TEMEL AYARLAR --- */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
             min-height: 100vh;
         }
 
         .container {
-            width: 100%;
-            max-width: 450px; /* Mobil görünüm için ideal genişlik */
-            background-color: #fff;
-            min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            overflow: hidden;
+            width: 100%; max-width: 450px;
+            background-color: #fff; min-height: 100vh;
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            overflow-x: hidden;
         }
 
-        /* --- Ekran Yönetimi --- */
-        .screen {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        .screen.active {
-            display: block;
-        }
+        /* --- EKRAN GEÇİŞLERİ --- */
+        .screen { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- 1. Ünite Listesi Stilleri --- */
+        /* --- ÜNİTE KARTLARI --- */
         .unit-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: transform 0.2s;
+            background-color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0; cursor: pointer; transition: transform 0.2s;
         }
         .unit-card:hover { transform: translateY(-2px); }
         .circle {
-            width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 20px;
-            margin-right: 15px; flex-shrink: 0;
+            width: 50px; height: 50px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; color: white;
+            font-weight: bold; font-size: 18px; margin-right: 15px; flex-shrink: 0;
         }
         /* Renkler */
-        .c-red { background-color: #e74c3c; }
-        .c-blue { background-color: #3498db; }
-        .c-green { background-color: #2ecc71; }
-        .info h3 { margin: 0 0 5px 0; font-size: 18px; color: #333; }
-        .info p { margin: 0; color: #95a5a6; font-size: 14px; }
+        .bg-1 { background-color: #ff6b6b; } .bg-2 { background-color: #4ecdc4; }
+        .bg-3 { background-color: #1a535c; } .bg-4 { background-color: #f7fff7; border: 1px solid #ccc; color:#333 !important; } 
+        .bg-5 { background-color: #ffe66d; color:#333 !important; }
 
-        /* --- 2. Ünite Detay Stilleri --- */
-        .detail-header { display: flex; align-items: center; margin-bottom: 20px; }
-        .back-button { font-size: 24px; color: #7f8c8d; cursor: pointer; margin-right: 15px; padding: 5px; }
-        .word-list { list-style: none; padding: 0; }
+        .info h3 { margin: 0; font-size: 16px; color: #333; }
+        .info p { margin: 3px 0 0 0; color: #95a5a6; font-size: 12px; }
+
+        /* --- DETAY LİSTESİ --- */
+        .detail-header { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .back-button { font-size: 24px; color: #333; cursor: pointer; margin-right: 15px; }
         .word-item {
-            background-color: white; border-radius: 10px;
-            padding: 15px; margin-bottom: 10px;
-            display: flex; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
-            cursor: pointer;
+            background-color: white; border-radius: 10px; padding: 15px; margin-bottom: 10px;
+            display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #eee; cursor: pointer; transition: background 0.2s;
         }
-        .word-item:hover { background-color: #f9f9f9; }
+        .word-item:active { background-color: #f5f5f5; }
         .word-icon {
-            width: 40px; height: 40px; margin-right: 15px;
-            border-radius: 50%; background-color: #e8f5e9;
-            color: #27ae60; display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-        }
-        .english-word { font-weight: 700; color: #2c3e50; font-size: 16px; }
-        .turkish-meaning { color: #7f8c8d; font-size: 14px; margin-top: 3px; }
-
-        /* --- 3. KELİME KARTI (Görseldeki Tasarım) --- */
-        #card-screen {
-            padding: 0; /* Tam ekran kontrolü için */
-            height: 100vh;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
+            width: 40px; height: 40px; margin-right: 15px; border-radius: 8px;
+            background-color: #f0f2f5; color: #555; display: flex;
+            align-items: center; justify-content: center; font-size: 18px; font-weight: bold;
         }
 
-        /* Üst Progress Bar */
-        .card-top-bar {
-            padding: 20px 20px 10px 20px;
-            display: flex;
-            align-items: center;
-        }
-        .progress-wrapper {
-            flex-grow: 1;
-            height: 6px;
-            background-color: #e0e0e0;
-            border-radius: 3px;
-            margin-right: 10px;
-            position: relative;
-        }
-        .progress-fill {
-            width: 20%; /* Örnek: 2/10 */
-            height: 100%;
-            background-color: #607d8b;
-            border-radius: 3px;
-        }
-        .progress-text {
-            color: #607d8b;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .card-close-btn {
-            margin-left: 15px;
-            font-size: 24px;
-            color: #b0bec5;
-            cursor: pointer;
-            line-height: 1;
-        }
+        /* --- KELİME KARTI --- */
+        #card-screen { padding: 0; height: 100vh; background-color: white; display: flex; flex-direction: column; }
+        .card-top-bar { padding: 15px; display: flex; justify-content: flex-end; }
+        .card-close-btn { font-size: 28px; color: #b0bec5; cursor: pointer; padding: 10px; }
 
-        /* Kelime ve Anlam Kısmı */
         .card-content {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 0 20px 30px 20px; flex-grow: 1; display: flex;
+            flex-direction: column; align-items: center;
         }
 
-        .word-header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
-            width: 100%;
-        }
+        .word-header { text-align: center; margin-bottom: 15px; width: 100%; }
+        .main-word-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .main-word { font-size: 38px; font-weight: 900; color: #2c3e50; margin: 0; letter-spacing: -1px; }
+        .main-meaning { color: #7f8c8d; font-size: 20px; margin-top: 5px; font-weight: 400; }
+        .speaker-icon { font-size: 24px; cursor: pointer; filter: grayscale(100%); transition: 0.2s; }
+        .speaker-icon:hover { filter: grayscale(0%); }
 
-        .main-word-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .speaker-icon {
-            color: #f1c40f; /* Sarı renk */
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .main-word {
-            font-size: 36px;
-            font-weight: 900;
-            color: #37474f; /* Koyu gri */
-            margin: 0;
-        }
-
-        .main-meaning {
-            color: #78909c;
-            font-size: 18px;
-            margin-top: 5px;
-            font-weight: 400;
-        }
-
-        /* Görsel Alanı */
         .card-image-container {
-            width: 100%;
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            position: relative;
+            width: 100%; height: 260px;
+            margin: 10px 0 20px 0; border-radius: 16px; overflow: hidden;
+            position: relative; background-color: #f0f0f0;
         }
-        
-        .card-image-container img {
-            max-width: 80%;
-            height: auto;
-            object-fit: contain;
-        }
-
-        /* Sarı Yıldırım İkonu (Görseldeki gibi) */
+        .card-image-container img { width: 100%; height: 100%; object-fit: cover; }
         .lightning-icon {
-            position: absolute;
-            right: 10px;
-            bottom: 0;
-            color: #fdd835;
-            font-size: 28px;
-            font-weight: bold;
+            position: absolute; right: 15px; bottom: 15px;
+            color: #f1c40f; font-size: 24px; background: rgba(255,255,255,0.8);
+            width: 40px; height: 40px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
         }
 
-        /* Örnek Cümle Kutusu */
         .example-box {
-            width: 100%;
-            background-color: white;
-            border: 1px solid #eceff1;
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            position: relative;
-            margin-top: auto; /* En alta itmek için */
-            margin-bottom: 30px;
-            box-sizing: border-box;
+            width: 100%; background-color: #fafafa; border: 1px solid #eee;
+            border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            position: relative; margin-top: auto; margin-bottom: 40px; box-sizing: border-box;
         }
-
         .or-label {
-            position: absolute;
-            left: 15px;
-            top: 18px;
-            color: #fbc02d; /* Ör. rengi */
-            font-weight: bold;
-            font-size: 14px;
+            position: absolute; left: 20px; top: -12px; background: #fff; padding: 0 5px;
+            color: #f39c12; font-weight: bold; font-size: 14px; border: 1px solid #eee; border-radius: 4px;
         }
-
-        .example-content {
-            padding-left: 30px; /* "Ör." yazısı için boşluk */
-        }
-
-        .ex-sentence-en {
-            color: #455a64;
-            font-size: 16px;
-            margin: 0 0 8px 0;
-            line-height: 1.4;
-        }
-
-        .highlight-word {
-            color: #7cb342; /* Yeşil vurgu */
-            font-weight: bold;
-        }
-
-        .divider {
-            height: 1px;
-            background-color: #eceff1;
-            margin: 8px 0;
-            border-top: 1px dashed #cfd8dc;
-        }
-
-        .ex-sentence-tr {
-            color: #90a4ae;
-            font-size: 14px;
-            margin: 0;
-        }
-
+        .highlight-word { color: #27ae60; font-weight: bold; background: #e8f5e9; padding: 0 2px; border-radius: 3px; }
+        .divider { height: 1px; background-color: #eee; margin: 12px 0; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="list-screen" class="screen active">
-            <h2 style="padding-left:10px; color:#333;">Üniteler</h2>
+            <h2 style="padding-left:5px; color:#2c3e50;">Üniteler</h2>
             <div id="units-container"></div>
         </div>
 
         <div id="detail-screen" class="screen">
             <div class="detail-header">
                 <span class="back-button" onclick="showListScreen()">&#8592;</span> 
-                <h2 id="detail-unit-title" style="margin:0; font-size:20px; color:#333;">Ünite Detay</h2>
+                <h2 id="detail-unit-title" style="margin:0; font-size:18px; color:#333;"></h2>
             </div>
-            
-            <div style="text-align: center; margin-bottom: 20px;">
-                <p>Bu ünitede çalışılacak <span style="font-weight: bold; color: #e67e22;">10</span> kelime var.</p>
+            <ul id="unit-word-list" style="list-style:none; padding:0;"></ul>
+            <div id="empty-message" style="display:none; text-align:center; color:#999; margin-top:50px;">
+                Bu ünite henüz boş.
             </div>
-            
-            <ul id="unit-word-list" class="word-list">
-                </ul>
         </div>
 
-        <div id="card-screen" class="screen" style="display:none;">
+        <div id="card-screen" class="screen">
             <div class="card-top-bar">
-                <div class="progress-wrapper">
-                    <div class="progress-fill" style="width: 20%;"></div>
-                </div>
-                <span class="progress-text">2/10</span>
                 <span class="card-close-btn" onclick="closeCardScreen()">&#10005;</span>
             </div>
-
             <div class="card-content">
                 <div class="word-header">
                     <div class="main-word-row">
                         <span class="speaker-icon">🔊</span>
-                        <h1 id="card-word" class="main-word">hide</h1>
+                        <h1 id="card-word" class="main-word">...</h1>
                     </div>
-                    <p id="card-meaning" class="main-meaning">gizlemek, saklamak</p>
+                    <p id="card-meaning" class="main-meaning">...</p>
                 </div>
 
                 <div class="card-image-container">
-                    <img id="card-image" src="https://img.freepik.com/free-vector/hiding-concept-illustration_114360-5309.jpg?w=740&t=st=1700000000~exp=1700000000~hmac=xxxxx" alt="Hide Illustration">
-                    
-                    <div class="lightning-icon">⚡+</div>
+                    <img id="card-image" src="" alt="Görsel">
+                    <div class="lightning-icon">⚡</div>
                 </div>
 
                 <div class="example-box">
-                    <span class="or-label">Ör.</span>
-                    <div class="example-content">
-                        <p id="card-sentence-en" class="ex-sentence-en">
-                            He was accused of trying to <span class="highlight-word">hide</span> evidence from the police.
-                        </p>
+                    <span class="or-label">Örnek</span>
+                    <div>
+                        <p id="card-sentence-en" style="color:#455a64; margin:0 0 5px 0; font-size:16px; line-height:1.4;"></p>
                         <div class="divider"></div>
-                        <p id="card-sentence-tr" class="ex-sentence-tr">
-                            Polisten delil gizlemeye çalışmakla suçlandı.
-                        </p>
+                        <p id="card-sentence-tr" style="color:#90a4ae; margin:0; font-size:14px;"></p>
                     </div>
                 </div>
             </div>
@@ -317,138 +155,186 @@
     </div>
 
     <script>
-        // --- GELİŞMİŞ VERİ HAVUZU ---
-        // Görseldeki 'hide' kelimesi için özel veriler girdim. Diğerleri şablon.
-        const wordPool = [
-            { 
-                word: "hide", 
-                meaning: "gizlemek, saklamak", 
-                sentenceEn: "He was accused of trying to {hide} evidence from the police.", // {} içindeki kelime yeşil olur
-                sentenceTr: "Polisten delil gizlemeye çalışmakla suçlandı.",
-                image: "https://cdni.iconscout.com/illustration/premium/thumb/business-man-hiding-in-cardboard-box-2936840-2454655.png" // Örnek görsel
-            },
-            { 
-                word: "create", 
-                meaning: "oluşturmak, yaratmak", 
-                sentenceEn: "You need to {create} a new account.",
-                sentenceTr: "Yeni bir hesap oluşturman gerekiyor.",
-                image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png"
-            },
-            { word: "listen", meaning: "dinlemek", sentenceEn: "Please {listen} to me carefully.", sentenceTr: "Lütfen beni dikkatlice dinle.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "speak", meaning: "konuşmak", sentenceEn: "Can you {speak} English?", sentenceTr: "İngilizce konuşabiliyor musun?", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "write", meaning: "yazmak", sentenceEn: "I will {write} a letter.", sentenceTr: "Bir mektup yazacağım.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "read", meaning: "okumak", sentenceEn: "I like to {read} books.", sentenceTr: "Kitap okumayı severim.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "run", meaning: "koşmak", sentenceEn: "They {run} every morning.", sentenceTr: "Her sabah koşarlar.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "walk", meaning: "yürümek", sentenceEn: "Let's {walk} together.", sentenceTr: "Hadi birlikte yürüyelim.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "sleep", meaning: "uyumak", sentenceEn: "I need to {sleep} now.", sentenceTr: "Şimdi uyumam lazım.", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
-            { word: "eat", meaning: "yemek yemek", sentenceEn: "Did you {eat} lunch?", sentenceTr: "Öğle yemeği yedin mi?", image: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" }
-        ];
+        // ======================================================
+        // 1. VERİ YÖNETİMİ (HER ÜNİTE AYRI AYRI BURADA)
+        // ======================================================
+        
+        const unitDatabase = {
+            // Ünite 1: Temel Fiiller
+            1: [
+                ["hide", "saklamak"],
+                ["run", "koşmak"],
+                ["eat", "yemek yemek"],
+                ["drink", "içmek"],
+                ["sleep", "uyumak"]
+            ],
+            // Ünite 2: Doğa
+            2: [
+                ["tree", "ağaç"],
+                ["ocean", "okyanus"],
+                ["mountain", "dağ"],
+                ["flower", "çiçek"],
+                ["rain", "yağmur"]
+            ],
+            // Ünite 3: Ev Eşyaları
+            3: [
+                ["chair", "sandalye"],
+                ["table", "masa"],
+                ["bed", "yatak"],
+                ["lamp", "lamba"],
+                ["window", "pencere"]
+            ],
+            // Ünite 4: Teknoloji
+            4: [
+                ["computer", "bilgisayar"],
+                ["phone", "telefon"],
+                ["camera", "kamera"],
+                ["robot", "robot"],
+                ["screen", "ekran"]
+            ]
+            // Ünite 5'ten 20'ye kadar aşağıda otomatik dolduruyoruz (Demo için)
+            // Siz buraya manuel olarak 5: [...], 6: [...] ekleyebilirsiniz.
+        };
 
-        // --- EKRAN YÖNETİMİ ---
+        // Demo Amaçlı: Boş üniteleri sahte veriyle dolduralım ki liste dolu görünsün
+        for (let i = 5; i <= 20; i++) {
+            unitDatabase[i] = [
+                ["example", "örnek"],
+                ["test", "deneme"],
+                ["word", "kelime"]
+            ];
+        }
+
+        // ======================================================
+        // 2. OTOMATİK İÇERİK OLUŞTURUCU (AI & ŞABLONLAR)
+        // ======================================================
+        
+        function processWordData(word, meaning) {
+            // A. Otomatik Görsel (Pollinations AI)
+            const imgUrl = `https://image.pollinations.ai/prompt/minimalist%20flat%20vector%20art%20of%20${word}%20isolated%20white%20background?width=400&height=300&nologo=true`;
+
+            // B. Otomatik Cümle Şablonları
+            const templates = [
+                { en: "I can see the {word}.", tr: "Şu {meaning}ı görebiliyorum." },
+                { en: "Do not forget the {word}.", tr: "{meaning}ı unutma." },
+                { en: "This {word} is very nice.", tr: "Bu {meaning} çok güzel." },
+                { en: "Where is the {word}?", tr: "{meaning} nerede?" },
+                { en: "I need a {word}.", tr: "Bir {meaning}a ihtiyacım var." }
+            ];
+
+            // Kelimenin uzunluğuna göre sabit bir cümle seç (her açışta aynı olsun diye)
+            const tIndex = word.length % templates.length;
+            const t = templates[tIndex];
+
+            return {
+                word: word,
+                meaning: meaning,
+                image: imgUrl,
+                sentenceEn: t.en.replace("{word}", `{${word}}`), // Renklendirme için işaret
+                sentenceTr: t.tr.replace("{meaning}", meaning)
+            };
+        }
+
+        // ======================================================
+        // 3. ARAYÜZ FONKSİYONLARI
+        // ======================================================
+
         const listScreen = document.getElementById('list-screen');
         const detailScreen = document.getElementById('detail-screen');
         const cardScreen = document.getElementById('card-screen');
 
-        function switchScreen(screenName) {
-            // Tüm ekranları gizle
-            listScreen.classList.remove('active');
-            listScreen.style.display = 'none';
-            detailScreen.classList.remove('active');
-            detailScreen.style.display = 'none';
-            cardScreen.classList.remove('active');
-            cardScreen.style.display = 'none';
-
-            // İstenen ekranı göster
-            const activeScreen = document.getElementById(screenName);
-            activeScreen.style.display = 'block'; // Block yapıyoruz ki görünsün
-            setTimeout(() => activeScreen.classList.add('active'), 10);
+        function switchScreen(screen) {
+            listScreen.classList.remove('active'); listScreen.style.display = 'none';
+            detailScreen.classList.remove('active'); detailScreen.style.display = 'none';
+            cardScreen.classList.remove('active'); cardScreen.style.display = 'none';
+            
+            screen.style.display = 'block';
+            setTimeout(() => screen.classList.add('active'), 10);
         }
 
-        // --- 1. LİSTE OLUŞTURMA ---
+        // --- Ünite Listesini Oluştur ---
         function initUnitList() {
             const container = document.getElementById('units-container');
-            const colors = ['c-red', 'c-blue', 'c-green'];
-            
-            for (let i = 1; i <= 5; i++) {
-                const div = document.createElement('div');
-                div.className = 'unit-card';
-                div.onclick = () => showDetailScreen(i);
-                div.innerHTML = `
-                    <div class="circle ${colors[(i-1)%3]}">${i}</div>
+            const totalUnits = 20;
+            const colors = ['bg-1', 'bg-2', 'bg-3', 'bg-4', 'bg-5'];
+
+            for (let i = 1; i <= totalUnits; i++) {
+                const color = colors[(i - 1) % colors.length];
+                const wordCount = unitDatabase[i] ? unitDatabase[i].length : 0;
+                
+                const card = document.createElement('div');
+                card.className = 'unit-card';
+                card.onclick = () => openUnit(i);
+                card.innerHTML = `
+                    <div class="circle ${color}">${i}</div>
                     <div class="info">
                         <h3>Ünite ${i}</h3>
-                        <p>${Math.floor(Math.random()*5)}/10 kelime öğrenildi</p>
+                        <p>${wordCount} kelime</p>
                     </div>
                 `;
-                container.appendChild(div);
+                container.appendChild(card);
             }
         }
 
-        // --- 2. DETAY EKRANI ---
-        function showDetailScreen(unitId) {
-            document.getElementById('detail-unit-title').innerText = `Ünite ${unitId}`;
-            const list = document.getElementById('unit-word-list');
-            list.innerHTML = '';
+        // --- Ünite Detayını Aç ---
+        function openUnit(unitId) {
+            document.getElementById('detail-unit-title').innerText = `Ünite ${unitId} Kelimeleri`;
+            const listContainer = document.getElementById('unit-word-list');
+            const emptyMsg = document.getElementById('empty-message');
+            listContainer.innerHTML = '';
 
-            // Bu örnekte her ünite için aynı kelimeleri yüklüyoruz ki "Hide" kelimesini görebilesin.
-            // Gerçek uygulamada ünite ID'sine göre veri çekilir.
-            wordPool.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'word-item';
-                li.onclick = () => openWordCard(item); // Karta tıklayınca açılacak fonksiyon
-                li.innerHTML = `
-                    <div class="word-icon">📄</div>
-                    <div>
-                        <div class="english-word">${item.word}</div>
-                        <div class="turkish-meaning">${item.meaning}</div>
-                    </div>
-                `;
-                list.appendChild(li);
-            });
+            const rawWords = unitDatabase[unitId];
 
-            switchScreen('detail-screen');
+            if (!rawWords || rawWords.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                
+                rawWords.forEach(pair => {
+                    const wordData = processWordData(pair[0], pair[1]);
+                    
+                    const li = document.createElement('li');
+                    li.className = 'word-item';
+                    li.onclick = () => openCard(wordData);
+                    
+                    // Kelimenin baş harfini ikon yap
+                    const initial = wordData.word.charAt(0).toUpperCase();
+                    
+                    li.innerHTML = `
+                        <div class="word-icon">${initial}</div>
+                        <div style="flex-grow:1">
+                            <div style="font-weight:bold; color:#333; font-size:16px;">${wordData.word}</div>
+                            <div style="font-size:14px; color:#777;">${wordData.meaning}</div>
+                        </div>
+                        <span style="color:#ddd;">&#10095;</span>
+                    `;
+                    listContainer.appendChild(li);
+                });
+            }
+            switchScreen(detailScreen);
         }
 
-        function showListScreen() {
-            switchScreen('list-screen');
-        }
-
-        // --- 3. KELİME KARTI FONKSİYONLARI ---
-        function openWordCard(data) {
-            // Verileri Karta Doldur
+        // --- Kartı Aç ---
+        function openCard(data) {
             document.getElementById('card-word').innerText = data.word;
             document.getElementById('card-meaning').innerText = data.meaning;
             
-            // Cümle içindeki kelimeyi yeşil yapmak için formatlama
-            // Veri yapımızda {kelime} şeklinde tutuyoruz, bunu <span> ile değiştiriyoruz.
-            const formattedSentence = data.sentenceEn.replace(
-                /{(\w+)}/g, 
-                '<span class="highlight-word">$1</span>'
-            );
-            
-            document.getElementById('card-sentence-en').innerHTML = formattedSentence;
+            // Cümleyi işle ve renklendir
+            const formattedEn = data.sentenceEn.replace(/{(\w+)}/g, '<span class="highlight-word">$1</span>');
+            document.getElementById('card-sentence-en').innerHTML = formattedEn;
             document.getElementById('card-sentence-tr').innerText = data.sentenceTr;
             
-            // Eğer gerçek bir görsel URL'si varsa değiştir, yoksa varsayılan kalır
-            if(data.image && data.image.length > 5) {
-                 // Sadece hide kelimesi için özel bir görsel mantığı (demo amaçlı)
-                 if(data.word === 'hide') {
-                    // Burada sizin gönderdiğiniz karikatüre benzer bir görsel kullanmaya çalıştım
-                    // Gerçek uygulamada bu resimler local klasörde olur.
-                 } else {
-                    document.getElementById('card-image').src = data.image;
-                 }
-            }
+            // Görseli yükle (yüklenirken placeholder gösterilebilir)
+            const img = document.getElementById('card-image');
+            img.src = data.image;
 
-            switchScreen('card-screen');
+            switchScreen(cardScreen);
         }
 
-        function closeCardScreen() {
-            // Karttan çıkınca tekrar detay listesine dön
-            switchScreen('detail-screen');
-        }
+        function showListScreen() { switchScreen(listScreen); }
+        function closeCardScreen() { switchScreen(detailScreen); }
 
-        // Başlat
+        // Uygulamayı Başlat
         initUnitList();
 
     </script>
