@@ -3,230 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ünite Listesi</title>
+    <title>Ünite 1 Detay</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Genel Stil ve Font */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f6f8;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            padding: 0;
         }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-
-        /* Kart Tasarımı */
-        .unit-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+        /* Header (Başlık Çubuğu) */
+        .header {
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border: 1px solid #e1e4e8;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky; /* Üstte sabit kalması için */
+            top: 0;
+            z-index: 10;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            flex-grow: 1; /* Başlığın ortalanmasına yardım eder */
+            text-align: center;
+        }
+
+        .header .icon {
+            font-size: 24px;
+            color: #999;
             cursor: pointer;
-            transition: transform 0.2s;
+            padding: 0 5px; /* Tıklama alanını genişletir */
+        }
+        
+        .header .close-icon {
+             /* X ikonunu sola iter */
+             order: -1; 
+        }
+        
+        .header .empty-space {
+             /* Sağ tarafta boşluk bırakıp başlığı ortalamak için */
+             width: 24px; 
         }
 
-        .unit-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        /* Ünite Bilgi Alanı (Ortadaki Daire ve Metin) */
+        .unit-summary {
+            text-align: center;
+            padding: 30px 20px 20px 20px;
         }
 
-        /* Renkli Daireler */
         .circle {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 30px;
+            background-color: #d9534f; /* Kırmızı renk (Ünite 1 için) */
+            margin: 0 auto 15px auto;
+        }
+
+        .summary-text {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .summary-text strong {
+            color: #d9534f; /* Sayının vurgulu rengi */
+            font-weight: 700;
+        }
+
+        /* Öğrenilen Kelimeleri Gizle Checkbox Alanı */
+        .hide-toggle {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .hide-toggle label {
+            margin-left: 10px;
+            color: #666;
+            font-size: 15px;
+        }
+        
+        /* Kelime Listesi */
+        .word-list {
+            padding: 0 0;
+        }
+
+        .word-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0; /* Hafif ayırıcı çizgi */
+            cursor: pointer;
+        }
+
+        .word-item:hover {
+            background-color: #fafafa;
+        }
+
+        .word-item img {
+            width: 50px; /* Görsel alanını sabitler */
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+            /* DİKKAT: Gerçek görselleriniz olmadığı için bu kısmı bir tutucu (placeholder) olarak kullanıyorum. */
+            /* Resimleri temsil eden simge (Örn: Bir yaprak simgesi) */
+        }
+        
+        .word-item .word-icon {
+            width: 20px;
+            height: 20px;
+            color: #8bc34a; /* Yeşil yaprak rengi */
             margin-right: 15px;
             flex-shrink: 0;
-        }
-
-        /* Daire Renkleri */
-        .c-red { background-color: #d9534f; }
-        .c-blue { background-color: #0275d8; }
-        .c-black { background-color: #292b2c; }
-        .c-green { background-color: #8bc34a; }
-        .c-orange { background-color: #f0ad4e; }
-        .c-pink { background-color: #e91e63; }
-        .c-cyan { background-color: #5bc0de; }
-        .c-dark { background-color: #37474f; }
-
-        /* Yazı Alanı */
-        .info h3 {
-            margin: 0 0 5px 0;
-            color: #333;
             font-size: 18px;
         }
+        
+        .word-item .word-icon-placeholder {
+            /* Görselin yanındaki boşluk için */
+            width: 50px; 
+            height: 50px;
+            border-radius: 8px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e5f5e5;
+        }
 
-        .info p {
-            margin: 0;
-            color: #6c757d; /* Gri yazı */
+
+        .word-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .word-details .english {
+            font-size: 17px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .word-details .turkish {
             font-size: 14px;
+            color: #6c757d;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="unit-card">
-            <div class="circle c-red">1</div>
-            <div class="info">
-                <h3>Ünite 1</h3>
-                <p>5/20 kelime öğrenildi.</p>
+    <div class="header">
+        <div class="icon close-icon">X</div> 
+        <h2>Ünite 1</h2>
+        <div class="empty-space"></div>
+    </div>
+
+    <div class="unit-summary">
+        <div class="circle">1</div>
+        <p class="summary-text">Bu ünitede çalışılacak <strong>10</strong> kelime var.</p>
+    </div>
+
+    <div class="hide-toggle">
+        <input type="checkbox" id="hide-learned">
+        <label for="hide-learned">Öğrenilen kelimeleri gizle</label>
+    </div>
+
+    <div class="word-list">
+        
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div> <div class="word-details">
+                <span class="english">add</span>
+                <span class="turkish">eklemek</span>
             </div>
         </div>
 
-        <div class="unit-card">
-            <div class="circle c-blue">2</div>
-            <div class="info">
-                <h3>Ünite 2</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">call</span>
+                <span class="turkish">aramak, çağırmak</span>
             </div>
         </div>
 
-        <div class="unit-card">
-            <div class="circle c-black">3</div>
-            <div class="info">
-                <h3>Ünite 3</h3>
-                <p>2/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">create</span>
+                <span class="turkish">yaratmak, oluşturmak</span>
             </div>
         </div>
 
-        <div class="unit-card">
-            <div class="circle c-green">4</div>
-            <div class="info">
-                <h3>Ünite 4</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">finish</span>
+                <span class="turkish">bitirmek, tamamlamak</span>
             </div>
         </div>
 
-        <div class="unit-card">
-            <div class="circle c-orange">5</div>
-            <div class="info">
-                <h3>Ünite 5</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">hide</span>
+                <span class="turkish">gizlemek, saklamak</span>
+            </div>
+        </div>
+
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">listen</span>
+                <span class="turkish">dinlemek</span>
             </div>
         </div>
         
-         <div class="unit-card">
-            <div class="circle c-pink">6</div>
-            <div class="info">
-                <h3>Ünite 6</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">run</span>
+                <span class="turkish">koşmak, çalıştırmak</span>
             </div>
         </div>
 
-        <div class="unit-card">
-            <div class="circle c-cyan">7</div>
-            <div class="info">
-                <h3>Ünite 7</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">speak</span>
+                <span class="turkish">konuşmak</span>
             </div>
         </div>
-        <div class="unit-card">
-            <div class="circle c-dark">8</div>
-            <div class="info">
-                <h3>Ünite 8</h3>
-                <p>0/20 kelime öğrenildi.</p>
+
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">watch</span>
+                <span class="turkish">izlemek, saat</span>
             </div>
         </div>
-        <div class="unit-card">
-            <div class="circle c-red">9</div>
-            <div class="info">
-                <h3>Ünite 9</h3>
-                <p>0/20 kelime öğrenildi.</p>
+        
+        <div class="word-item">
+            <div class="word-icon-placeholder">🌱</div>
+            <div class="word-details">
+                <span class="english">write</span>
+                <span class="turkish">yazmak</span>
             </div>
         </div>
-        <div class="unit-card">
-            <div class="circle c-blue">10</div>
-            <div class="info">
-                <h3>Ünite 10</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-black">11</div>
-            <div class="info">
-                <h3>Ünite 11</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-green">12</div>
-            <div class="info">
-                <h3>Ünite 12</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-orange">13</div>
-            <div class="info">
-                <h3>Ünite 13</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-pink">14</div>
-            <div class="info">
-                <h3>Ünite 14</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-cyan">15</div>
-            <div class="info">
-                <h3>Ünite 15</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-dark">16</div>
-            <div class="info">
-                <h3>Ünite 16</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-red">17</div>
-            <div class="info">
-                <h3>Ünite 17</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-blue">18</div>
-            <div class="info">
-                <h3>Ünite 18</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-black">19</div>
-            <div class="info">
-                <h3>Ünite 19</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
-        <div class="unit-card">
-            <div class="circle c-green">20</div>
-            <div class="info">
-                <h3>Ünite 20</h3>
-                <p>0/20 kelime öğrenildi.</p>
-            </div>
-        </div>
+
     </div>
 
 </body>
