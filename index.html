@@ -22,10 +22,10 @@
 
         /* --- Ortak Görünümler --- */
         .screen {
-            display: none; /* Ekranları başlangıçta gizle */
+            display: none;
         }
         .screen.active {
-            display: block; /* Aktif ekranı göster */
+            display: block;
         }
 
         /* --- Ünite Listesi (List Screen) Stilleri --- */
@@ -62,7 +62,7 @@
             flex-shrink: 0;
         }
 
-        /* Daire Renkleri (Sadece örnek için, tümünü buraya yazmaya gerek yok) */
+        /* Daire Renkleri */
         .c-red { background-color: #d9534f; }
         .c-blue { background-color: #0275d8; }
         .c-black { background-color: #292b2c; }
@@ -85,7 +85,7 @@
             font-size: 14px;
         }
 
-        /* --- Ünite Detay (Detail Screen) Stilleri (Yüklediğiniz Görsele Benzer) --- */
+        /* --- Ünite Detay (Detail Screen) Stilleri --- */
         .detail-header {
             display: flex;
             align-items: center;
@@ -102,14 +102,13 @@
             font-size: 24px;
             color: #333;
             flex-grow: 1;
-            text-align: center; /* Başlığı ortala */
+            text-align: center;
         }
         .detail-header .unit-circle {
             width: 60px;
             height: 60px;
             font-size: 28px;
             margin: 0 auto 10px auto;
-            background-color: #d9534f; /* Kırmızı renk */
         }
         .detail-info {
             text-align: center;
@@ -133,25 +132,34 @@
             display: flex;
             align-items: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: pointer; /* Tıklanabilir olduğunu belirt */
+            border: 1px solid #e1e4e8;
+            transition: background-color 0.3s, border-color 0.3s;
         }
+
+        .word-item.learned {
+            background-color: #e6ffe6; /* Öğrenildiğinde açık yeşil arka plan */
+            border-left: 5px solid #4CAF50; /* Yeşil kalın sol çizgi */
+            opacity: 0.7;
+        }
+
         .word-item .word-icon {
             width: 40px;
             height: 40px;
             margin-right: 10px;
             border-radius: 50%;
-            background-color: #e6ffe6; /* Açık yeşil arka plan */
-            color: #4CAF50; /* Koyu yeşil simge rengi */
+            background-color: #f0f0f0;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-style: italic; /* Kelime kökü simgesi (örneğin yaprak) */
             font-weight: bold;
+            flex-shrink: 0;
         }
-        .word-item .word-icon img {
-            width: 40px; /* Görsel boyutunu ayarla */
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
+
+        .word-item.learned .word-icon {
+            background-color: #4CAF50; /* Öğrenildiğinde ikon yeşil */
+            color: white;
         }
 
         .word-item .text-content {
@@ -161,6 +169,10 @@
             font-weight: bold;
             color: #333;
             font-size: 16px;
+        }
+        .word-item.learned .text-content .english-word {
+             text-decoration: line-through; /* Öğrenilen kelimeyi çiz */
+             color: #6c757d;
         }
         .word-item .text-content .turkish-meaning {
             color: #6c757d;
@@ -182,8 +194,10 @@
             
             <div class="detail-info">
                 <div id="detail-unit-circle" class="circle detail-header-circle c-red"></div>
-                <p>Bu ünitede çalışılacak <span id="word-count" style="font-weight: bold; color: #f0ad4e;">10</span> kelime var.</p>
-                <p><input type="checkbox" id="hide-learned"> <label for="hide-learned">Öğrenilen kelimeleri gizle</label></p>
+                <p>Bu ünitede çalışılacak toplam <span id="total-word-count" style="font-weight: bold; color: #f0ad4e;">0</span> kelime var.</p>
+                <p><span id="learned-word-count" style="font-weight: bold; color: #4CAF50;">0</span> kelime öğrenildi.</p>
+                
+                <p><input type="checkbox" id="hide-learned" onchange="filterWords()"> <label for="hide-learned">Öğrenilen kelimeleri gizle</label></p>
             </div>
             
             <ul id="unit-word-list" class="word-list">
@@ -192,65 +206,98 @@
     </div>
 
     <script>
-        // --- 1. Kelime Havuzu ve Rastgele Seçim Fonksiyonu ---
+        // --- Global Değişkenler ---
+        let currentUnitWords = [];
+        let currentUnitNumber = null;
+
+        // --- 1. Kelime Havuzu ve Rastgele Seçim Fonksiyonu (ID eklendi) ---
+        // Her kelimenin artık kendine ait benzersiz bir ID'si var
         const wordPool = [
-            { word: "add", meaning: "eklemek" },
-            { word: "call", meaning: "aramak, çağırmak" },
-            { word: "create", meaning: "yaratmak, oluşturmak" },
-            { word: "finish", meaning: "bitirmek, tamamlamak" },
-            { word: "hide", meaning: "gizlemek, saklamak" },
-            { word: "listen", meaning: "dinlemek" },
-            { word: "work", meaning: "çalışmak, iş" },
-            { word: "write", meaning: "yazmak" },
-            { word: "read", meaning: "okumak" },
-            { word: "speak", meaning: "konuşmak" },
-            { word: "travel", meaning: "seyahat etmek" },
-            { word: "find", meaning: "bulmak" },
-            { word: "lose", meaning: "kaybetmek" },
-            { word: "walk", meaning: "yürümek" },
-            { word: "run", meaning: "koşmak" },
-            { word: "understand", meaning: "anlamak" },
-            { word: "remember", meaning: "hatırlamak" },
-            { word: "forget", meaning: "unutmak" },
-            { word: "want", meaning: "istemek" },
-            { word: "need", meaning: "ihtiyaç duymak" },
-            { word: "look", meaning: "bakmak" },
-            { word: "feel", meaning: "hissetmek" },
-            { word: "open", meaning: "açmak" },
-            { word: "close", meaning: "kapatmak" },
-            { word: "start", meaning: "başlamak" },
-            { word: "stop", meaning: "durmak, bitmek" },
-            { word: "sleep", meaning: "uyumak" },
-            { word: "eat", meaning: "yemek yemek" },
-            { word: "drink", meaning: "içmek" },
-            { word: "help", meaning: "yardım etmek" },
+            { id: 1, word: "add", meaning: "eklemek" },
+            { id: 2, word: "call", meaning: "aramak, çağırmak" },
+            { id: 3, word: "create", meaning: "yaratmak, oluşturmak" },
+            { id: 4, word: "finish", meaning: "bitirmek, tamamlamak" },
+            { id: 5, word: "hide", meaning: "gizlemek, saklamak" },
+            { id: 6, word: "listen", meaning: "dinlemek" },
+            { id: 7, word: "work", meaning: "çalışmak, iş" },
+            { id: 8, word: "write", meaning: "yazmak" },
+            { id: 9, word: "read", meaning: "okumak" },
+            { id: 10, word: "speak", meaning: "konuşmak" },
+            { id: 11, word: "travel", meaning: "seyahat etmek" },
+            { id: 12, word: "find", meaning: "bulmak" },
+            { id: 13, word: "lose", meaning: "kaybetmek" },
+            { id: 14, word: "walk", meaning: "yürümek" },
+            { id: 15, word: "run", meaning: "koşmak" },
+            { id: 16, word: "understand", meaning: "anlamak" },
+            { id: 17, word: "remember", meaning: "hatırlamak" },
+            { id: 18, word: "forget", meaning: "unutmak" },
+            { id: 19, word: "want", meaning: "istemek" },
+            { id: 20, word: "need", meaning: "ihtiyaç duymak" },
+            { id: 21, word: "look", meaning: "bakmak" },
+            { id: 22, "word": "feel", meaning: "hissetmek" },
+            { id: 23, "word": "open", meaning: "açmak" },
+            { id: 24, "word": "close", meaning: "kapatmak" },
+            { id: 25, "word": "start", meaning: "başlamak" },
+            { id: 26, "word": "stop", meaning: "durmak, bitmek" },
+            { id: 27, "word": "sleep", meaning: "uyumak" },
+            { id: 28, "word": "eat", meaning: "yemek yemek" },
+            { id: 29, "word": "drink", meaning: "içmek" },
+            { id: 30, "word": "help", meaning: "yardım etmek" },
         ];
         
-        // Rastgele 10 kelime seçen fonksiyon
-        function getRandomWords(count) {
-            // Kelimelerin karıştırılmış bir kopyasını oluştur
-            const shuffled = [...wordPool].sort(() => 0.5 - Math.random());
-            // İlk 'count' kadarını al
-            return shuffled.slice(0, count);
+        // Üniteye ait kelimeleri getiren fonksiyon (Artık her üniteye sabit kelimeler atandı)
+        function getUnitWords(unitNumber) {
+            const wordsPerUnit = 10;
+            const startIndex = (unitNumber - 1) * wordsPerUnit;
+            // Sözlük havuzundan ilgili dilimi al
+            return wordPool.slice(startIndex, startIndex + wordsPerUnit);
         }
 
-        // --- 2. Ünite Listesi Oluşturma ---
+        // --- 2. LocalStorage Fonksiyonları ---
+
+        // Kelimenin öğrenildi durumunu LocalStorage'a kaydeder
+        function saveWordLearnedStatus(unitId, wordId, isLearned) {
+            const key = `unit_${unitId}_word_${wordId}_learned`;
+            localStorage.setItem(key, isLearned ? 'true' : 'false');
+            // Liste görünümünü tekrar oluşturarak öğrenilen kelime sayısını güncelleyelim
+            updateUnitListLearnedCount();
+        }
+
+        // Kelimenin öğrenildi durumunu LocalStorage'dan alır
+        function isWordLearned(unitId, wordId) {
+            const key = `unit_${unitId}_word_${wordId}_learned`;
+            return localStorage.getItem(key) === 'true';
+        }
+
+        // Belirli bir ünitedeki öğrenilmiş kelime sayısını hesaplar
+        function countLearnedWords(unitNumber) {
+            const words = getUnitWords(unitNumber);
+            let count = 0;
+            words.forEach(word => {
+                if (isWordLearned(unitNumber, word.id)) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        // --- 3. Ünite Listesi Oluşturma ve Güncelleme ---
         const listScreen = document.getElementById('list-screen');
-        const unitCount = 20;
+        const unitCount = 3; // 30 kelime olduğu için 3 ünite (10'ar kelime)
         const colorClasses = ['c-red', 'c-blue', 'c-black', 'c-green', 'c-orange', 'c-pink', 'c-cyan', 'c-dark'];
 
-        // Örnek öğrenilen kelime sayıları (gerçek bir uygulamada bu veritabanından gelmeli)
-        const learnedWords = {
-            1: 5,
-            3: 2,
-            // Diğer üniteler 0
-        };
+        function updateUnitListLearnedCount() {
+            // Önceki listeyi temizle
+            listScreen.innerHTML = ''; 
+            createUnitList();
+        }
 
         function createUnitList() {
             for (let i = 1; i <= unitCount; i++) {
                 const colorClass = colorClasses[(i - 1) % colorClasses.length];
-                const learned = learnedWords[i] || 0;
-                
+                const totalWords = getUnitWords(i).length;
+                const learned = countLearnedWords(i); // LocalStorage'dan say
+
                 const card = document.createElement('div');
                 card.className = 'unit-card';
                 card.setAttribute('onclick', `showDetailScreen(${i}, '${colorClass}')`);
@@ -259,19 +306,74 @@
                     <div class="circle ${colorClass}">${i}</div>
                     <div class="info">
                         <h3>Ünite ${i}</h3>
-                        <p>${learned}/20 kelime öğrenildi.</p>
+                        <p>${learned}/${totalWords} kelime öğrenildi.</p>
                     </div>
                 `;
                 listScreen.appendChild(card);
             }
         }
-        createUnitList(); // Listeyi oluştur
+        createUnitList(); // Listeyi başlangıçta oluştur
 
-        // --- 3. Ekran Yönetimi Fonksiyonları ---
+        // --- 4. Kelime Durumu Değiştirme ve Filtreleme ---
+
+        // Kelimenin öğrenildi/öğrenilmedi durumunu değiştirir
+        function toggleWordLearnedStatus(wordId) {
+            const isLearnedNow = isWordLearned(currentUnitNumber, wordId);
+            const newStatus = !isLearnedNow;
+            
+            // LocalStorage'ı güncelle
+            saveWordLearnedStatus(currentUnitNumber, wordId, newStatus);
+            
+            // UI'ı güncelle
+            const listItem = document.querySelector(`.word-item[data-word-id="${wordId}"]`);
+            if (listItem) {
+                if (newStatus) {
+                    listItem.classList.add('learned');
+                } else {
+                    listItem.classList.remove('learned');
+                }
+            }
+
+            // Sayımı ve filtreyi güncelle
+            updateDetailScreenCounts();
+            filterWords(); // Durum değişince filtreyi tekrar uygula
+        }
+        
+        // Detay ekranındaki öğrenilen/toplam kelime sayısını günceller
+        function updateDetailScreenCounts() {
+            const totalWords = currentUnitWords.length;
+            const learnedWords = countLearnedWords(currentUnitNumber);
+
+            document.getElementById('total-word-count').textContent = totalWords;
+            document.getElementById('learned-word-count').textContent = learnedWords;
+        }
+
+
+        // Öğrenilen kelimeleri gizleme filtresini uygular
+        function filterWords() {
+            const hideChecked = document.getElementById('hide-learned').checked;
+            const wordListItems = document.querySelectorAll('#unit-word-list .word-item');
+            
+            wordListItems.forEach(item => {
+                const isLearned = item.classList.contains('learned');
+                
+                if (hideChecked && isLearned) {
+                    item.style.display = 'none';
+                } else {
+                    item.style.display = 'flex';
+                }
+            });
+        }
+
+
+        // --- 5. Ekran Yönetimi Fonksiyonları ---
         const detailScreen = document.getElementById('detail-screen');
 
         function showDetailScreen(unitNumber, colorClass) {
-            // Detay ekranını aktive et
+            currentUnitNumber = unitNumber;
+            currentUnitWords = getUnitWords(unitNumber); // Üniteye ait sabit kelimeleri al
+
+            // Ekran geçişi
             document.getElementById('list-screen').classList.remove('active');
             detailScreen.classList.add('active');
 
@@ -279,22 +381,26 @@
             document.getElementById('detail-unit-title').textContent = `Ünite ${unitNumber}`;
             const unitCircle = document.getElementById('detail-unit-circle');
             unitCircle.textContent = unitNumber;
-            // Dairenin rengini ve sayısını güncelle
             unitCircle.className = `circle detail-header-circle ${colorClass}`;
 
-            // Rastgele kelimeleri al ve listeye ekle
-            const words = getRandomWords(10);
             const wordListElement = document.getElementById('unit-word-list');
             wordListElement.innerHTML = ''; // Önceki kelimeleri temizle
 
-            words.forEach(item => {
-                // Not: Görselde resimler var. Basit bir "yaprak" ikonu yerine görsel eklemek isterseniz 'word-icon img' kısmını kullanabilirsiniz.
-                // Şimdilik sadece bir simge yerine rastgele bir emoji kullandım.
+            currentUnitWords.forEach(item => {
+                // Kelimenin LocalStorage'daki durumunu kontrol et
+                const learnedStatus = isWordLearned(unitNumber, item.id);
+                
                 const randomEmoji = ['🌿', '📝', '📞', '💡', '➕', '💨'][Math.floor(Math.random() * 6)];
                 const listItem = document.createElement('li');
-                listItem.className = 'word-item';
+                
+                // data-word-id özelliğini ve learned sınıfını ekle
+                listItem.className = `word-item ${learnedStatus ? 'learned' : ''}`;
+                listItem.setAttribute('data-word-id', item.id);
+                // Kelimeye tıklandığında durumu değiştirecek olay dinleyicisini ekle
+                listItem.setAttribute('onclick', `toggleWordLearnedStatus(${item.id})`);
+
                 listItem.innerHTML = `
-                    <div class="word-icon">${randomEmoji}</div>
+                    <div class="word-icon">${learnedStatus ? '✓' : randomEmoji}</div>
                     <div class="text-content">
                         <div class="english-word">${item.word}</div>
                         <div class="turkish-meaning">${item.meaning}</div>
@@ -302,12 +408,20 @@
                 `;
                 wordListElement.appendChild(listItem);
             });
+            
+            // Sayımları ve filtreyi başlangıçta ayarla
+            updateDetailScreenCounts();
+            document.getElementById('hide-learned').checked = false; // Detay açıldığında filtre kapalı olsun
+            filterWords();
         }
 
         function showListScreen() {
             // Liste ekranını aktive et
             document.getElementById('list-screen').classList.add('active');
             detailScreen.classList.remove('active');
+            
+            // Listeye dönerken ünite kartlarındaki öğrenilen sayısını güncelle
+            updateUnitListLearnedCount();
         }
 
         // Başlangıçta listeyi göster
